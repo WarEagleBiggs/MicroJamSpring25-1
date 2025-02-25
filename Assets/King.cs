@@ -17,6 +17,8 @@ public class King : MonoBehaviour
     public GameObject obs;
 
     private ColorAdjustments colorAdjustments;
+    private float hueSpeed = 30f; // Adjust this to control hue transition speed
+    private float hueValue = -180f; // Start hue shift at -180
 
     void Start()
     {
@@ -31,8 +33,8 @@ public class King : MonoBehaviour
         }
 
         StartCoroutine(Increment());
-        StartCoroutine(ChangeHue()); // Start hue change coroutine
 
+        // Start multiple spawn coroutines as in the original code
         StartCoroutine(Spawn());
         StartCoroutine(Spawn());
         StartCoroutine(Spawn());
@@ -52,6 +54,15 @@ public class King : MonoBehaviour
 
     void Update()
     {
+        // Smoothly transition the hue shift over time
+        if (colorAdjustments != null)
+        {
+            hueValue += hueSpeed * Time.deltaTime; // Increment hue based on time
+            if (hueValue > 180f) hueValue = -180f; // Loop hue back when it exceeds 180
+
+            colorAdjustments.hueShift.value = hueValue;
+        }
+
         score.SetText(activeScore.ToString());
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
@@ -70,20 +81,6 @@ public class King : MonoBehaviour
         {
             yield return new WaitForSeconds(0.5f);
             activeScore++;
-        }
-    }
-
-    public IEnumerator ChangeHue()
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(0.5f); // Change hue every 0.5 seconds
-
-            if (colorAdjustments != null)
-            {
-                float ranNum = Random.Range(-180f, 180f); // Hue shift range is -180 to 180
-                colorAdjustments.hueShift.value = ranNum;
-            }
         }
     }
 
